@@ -1,28 +1,42 @@
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { createUser } from "../slices/counterSlice";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
+import { updateUser } from "../slices/counterSlice";
+import Navbar from "./Navbar";
 
-const Create = () => {
-  const [users, setUsers] = useState({});
+const Update = () => {
+  const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const getUsersData = (e) => {
-    setUsers({ ...users, [e.target.name]: e.target.value });
-  };
-  console.log(users);
+  const [updateData, setUpdateData] = useState();
 
-  const handleSubmit = (e) => {
+  const { users, loading } = useSelector((state) => state.counter);
+
+  useEffect(() => {
+    if (id) {
+      const singleUser = users.filter((user) => {
+        return user.id === id;
+      });
+      setUpdateData(singleUser[0]);
+    }
+  }, []);
+
+  const newData = (e) => {
+    setUpdateData({ ...updateData, [e.target.name]: e.target.value });
+  };
+
+  const handleUpdate = (e) => {
     e.preventDefault();
 
-    dispatch(createUser(users));
+    dispatch(updateUser(updateData));
     navigate("/read");
   };
 
   return (
     <div>
-      <form className="w-50 mx-auto my-5" onSubmit={handleSubmit}>
+      <Navbar />
+      <form className="w-50 mx-auto my-5" onSubmit={handleUpdate}>
         <div className="mb-3">
           <label htmlFor="exampleInputEmail1" className="form-label">
             Name
@@ -33,7 +47,8 @@ const Create = () => {
             className="form-control"
             id="exampleInputEmail1"
             aria-describedby="emailHelp"
-            onChange={getUsersData}
+            value={updateData && updateData.name}
+            onChange={newData}
           />
         </div>
         <div className="mb-3">
@@ -46,7 +61,8 @@ const Create = () => {
             className="form-control"
             id="exampleInputEmail1"
             aria-describedby="emailHelp"
-            onChange={getUsersData}
+            value={updateData && updateData.email}
+            onChange={newData}
           />
         </div>
         <div className="mb-3">
@@ -59,7 +75,8 @@ const Create = () => {
             className="form-control"
             id="exampleInputEmail1"
             aria-describedby="emailHelp"
-            onChange={getUsersData}
+            value={updateData && updateData.age}
+            onChange={newData}
           />
         </div>
         <div className="mb-3">
@@ -69,7 +86,8 @@ const Create = () => {
             name="gender"
             id="flexRadioDefault1"
             value="Male"
-            onChange={getUsersData}
+            checked={updateData && updateData.gender == "Male"}
+            onChange={newData}
           />
           <label className="form-check-label" htmlFor="flexRadioDefault1">
             Male
@@ -82,7 +100,8 @@ const Create = () => {
             name="gender"
             id="flexRadioDefault2"
             value="Female"
-            onChange={getUsersData}
+            checked={updateData && updateData.gender == "Female"}
+            onChange={newData}
           />
           <label className="form-check-label" htmlFor="flexRadioDefault2">
             Female
@@ -96,4 +115,4 @@ const Create = () => {
   );
 };
 
-export default Create;
+export default Update;

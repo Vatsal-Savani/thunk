@@ -1,13 +1,29 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import { searchUser } from "../slices/counterSlice";
 
-const Navbar = () => {
+const Navbar = ({ setSearchQuery }) => {
+  const { users } = useSelector((state) => state.counter);
+
+  const debounce = (cb, delay) => {
+    let timer;
+    return (...args) => {
+      if (timer) clearTimeout(timer);
+
+      timer = setTimeout(() => {
+        cb(...args);
+      }, delay);
+    };
+  };
+
+  const finalText = debounce((value) => setSearchQuery(value), 1000);
+
   return (
     <div>
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
         <div className="container-fluid">
-          <a className="navbar-brand" href="#">
-            Navbar
-          </a>
+          <Link className="navbar-brand">Navbar</Link>
           <button
             className="navbar-toggler"
             type="button"
@@ -22,14 +38,14 @@ const Navbar = () => {
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
               <li className="nav-item">
-                <a className="nav-link active" aria-current="page" href="#">
+                <Link to="/" className="nav-link active" aria-current="page">
                   Create Post
-                </a>
+                </Link>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="#">
-                  All Post
-                </a>
+                <Link to="/read" className="nav-link" href="#">
+                  All Post ({users?.length})
+                </Link>
               </li>
             </ul>
             <form className="d-flex">
@@ -38,6 +54,7 @@ const Navbar = () => {
                 type="search"
                 placeholder="Search"
                 aria-label="Search"
+                onChange={(e) => finalText(e.target.value)}
               />
               <button className="btn btn-outline-success" type="submit">
                 Search
